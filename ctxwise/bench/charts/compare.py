@@ -33,7 +33,11 @@ PARSERS = [  # label, method, share of pages sent to an LLM for reading, pick
     ("PyMuPDF4LLM\n(RapidOCR)", "pymupdf-rapidocr", 0.0, False),
     ("MarkItDown + OCR plugin\n(gpt-5-mini)", "markitdown-ocr", 1.0, False),
 ]
-PARSERS = [p for p in PARSERS if os.path.exists(f"{DATA}/results/{p[1]}_quick_match_metric_result.json")]
+PARSERS = [
+    p
+    for p in PARSERS
+    if os.path.exists(f"{DATA}/results/{p[1]}_quick_match_metric_result.json")
+]
 R = {k: metric(k) for _, k, _, _ in PARSERS}
 names, picks = [p[0] for p in PARSERS], [p[3] for p in PARSERS]
 
@@ -71,7 +75,14 @@ for fname, f, lab in [
     ("compare-heatmap-reading.png", order, "reading-order error"),
 ]:
     fig, ax = plt.subplots(figsize=(10, 5.6))
-    heatmap(ax, [[f(R[k], g) for _, k, _, _ in PARSERS] for _, g in cats], names, [c[0] for c in cats], cmap, vmax=1.0)
+    heatmap(
+        ax,
+        [[f(R[k], g) for _, k, _, _ in PARSERS] for _, g in cats],
+        names,
+        [c[0] for c in cats],
+        cmap,
+        vmax=1.0,
+    )
     title(
         fig,
         f"{lab.capitalize()} by page type (lower is better)",
@@ -87,7 +98,9 @@ if os.path.exists(oc):
     parsers, rows = checks["parsers"], checks["rows"]
     grid = [[1 if r["results"][p] else 0 for p in parsers] for r in rows]
     fig, ax = plt.subplots(figsize=(7.5, 0.34 * len(rows) + 1.4))
-    ax.imshow(grid, cmap=ListedColormap(["#f0efec", ACC]), vmin=0, vmax=1, aspect="auto")
+    ax.imshow(
+        grid, cmap=ListedColormap(["#f0efec", ACC]), vmin=0, vmax=1, aspect="auto"
+    )
     for i, r in enumerate(grid):
         for j, v in enumerate(r):
             ax.text(
@@ -110,7 +123,10 @@ if os.path.exists(oc):
     ax.set_yticks([y - 0.5 for y in range(1, len(rows))], minor=True)
     ax.grid(which="minor", color=SURF, lw=2)
     ax.tick_params(which="minor", length=0)
-    totals = " · ".join(f"{p}: {sum(1 for r in grid if r[j])}/{len(rows)}" for j, p in enumerate(parsers))
+    totals = " · ".join(
+        f"{p}: {sum(1 for r in grid if r[j])}/{len(rows)}"
+        for j, p in enumerate(parsers)
+    )
     title(fig, "Word, PowerPoint and Excel: what reaches the model", totals)
     fig.savefig(f"{OUT}/compare-office.png")
     plt.close(fig)
@@ -145,7 +161,11 @@ ax.set_ylim(0, max(text(R[k]) for _, k, _, _ in PARSERS) * 1.2)
 ax.set_xlabel("pages sent to an LLM for reading (%)")
 ax.set_ylabel("text error (lower is better)")
 ax.grid(True, color=GRID, lw=0.6, zorder=0)
-title(fig, "Quality vs LLM use", "Bottom-left is best: accurate text with few paid LLM calls")
+title(
+    fig,
+    "Quality vs LLM use",
+    "Bottom-left is best: accurate text with few paid LLM calls",
+)
 fig.savefig(f"{OUT}/compare-llm-use.png")
 plt.close(fig)
 print("written:", sorted(f for f in os.listdir(OUT) if f.startswith("compare-")))

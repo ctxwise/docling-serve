@@ -38,7 +38,12 @@ if args.ocr:
         return r
 
     client.chat.completions.create = counted
-    md = MarkItDown(enable_plugins=True, llm_client=client, llm_model="gpt-5-mini", keep_data_uris=args.office)
+    md = MarkItDown(
+        enable_plugins=True,
+        llm_client=client,
+        llm_model="gpt-5-mini",
+        keep_data_uris=args.office,
+    )
 else:
     md = MarkItDown(keep_data_uris=args.office)
 
@@ -49,7 +54,9 @@ def page(img):
         return 0
     t = time.time()
     pdf = f"/tmp/{os.path.splitext(img)[0]}.pdf"
-    Path(pdf).write_bytes(pymupdf.open(f"/data/OmniDocBench/images/{img}").convert_to_pdf())
+    Path(pdf).write_bytes(
+        pymupdf.open(f"/data/OmniDocBench/images/{img}").convert_to_pdf()
+    )
     try:
         text = md.convert(pdf).text_content
     except Exception as e:
@@ -67,9 +74,17 @@ if args.office:
         )
 else:
     os.makedirs(f"/data/pred/{name}", exist_ok=True)
-    imgs = [n for n in Path("/data/hard.txt").read_text(encoding="utf-8").splitlines() if n]
+    imgs = [
+        n for n in Path("/data/hard.txt").read_text(encoding="utf-8").splitlines() if n
+    ]
     t0 = time.time()
     with ThreadPoolExecutor(6) as ex:
         times = sorted(ex.map(page, imgs))
-    print(f"{len(imgs)} pages in {time.time() - t0:.0f}s, median {times[len(times) // 2]:.1f}s/page", flush=True)
-print(f"LLM calls {usage['calls']}, tokens in {usage['in']} out {usage['out']}", flush=True)
+    print(
+        f"{len(imgs)} pages in {time.time() - t0:.0f}s, median {times[len(times) // 2]:.1f}s/page",
+        flush=True,
+    )
+print(
+    f"LLM calls {usage['calls']}, tokens in {usage['in']} out {usage['out']}",
+    flush=True,
+)

@@ -12,8 +12,23 @@ import matplotlib.pyplot as plt
 DATA, OUT = "/bench/data", "/images"
 # palette (light): accent blue, de-emphasis gray, orange; chrome + ink
 ACC, GRAY, ORG = "#2a78d6", "#c3c2b7", "#eb6834"
-INK, INK2, MUTED, GRID, AXIS, SURF = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7", "#fcfcfb"
-BLUES = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"]  # sequential ramp
+INK, INK2, MUTED, GRID, AXIS, SURF = (
+    "#0b0b0b",
+    "#52514e",
+    "#898781",
+    "#e1e0d9",
+    "#c3c2b7",
+    "#fcfcfb",
+)
+BLUES = [
+    "#cde2fb",
+    "#9ec5f4",
+    "#6da7ec",
+    "#3987e5",
+    "#256abf",
+    "#184f95",
+    "#0d366b",
+]  # sequential ramp
 plt.rcParams.update(
     {
         "font.family": "DejaVu Sans",
@@ -56,13 +71,18 @@ def metric(method):
 
 
 def per_page(method):
-    return load_json(f"{DATA}/results/{method}_quick_match_text_block_per_page_edit.json")
+    return load_json(
+        f"{DATA}/results/{method}_quick_match_text_block_per_page_edit.json"
+    )
 
 
 def confidence():
     """docling's confidence (low_score) per benchmark page, from data/docling-json"""
     folder = f"{DATA}/docling-json"
-    return {f[:-5]: load_json(f"{folder}/{f}")["confidence"]["low_score"] for f in os.listdir(folder)}
+    return {
+        f[:-5]: load_json(f"{folder}/{f}")["confidence"]["low_score"]
+        for f in os.listdir(folder)
+    }
 
 
 def text(m, group="ALL"):
@@ -88,7 +108,14 @@ def hbars(ax, labels, values, picks, fmt, xmax, title_=None):
     ax.barh(y, values, height=0.55, color=[ACC if p else GRAY for p in picks], zorder=2)
     ax.set_yticks(y, labels)
     for yi, v, p in zip(y, values, picks, strict=True):
-        ax.text(v + xmax * 0.015, yi, fmt.format(v), va="center", fontsize=9, fontweight="bold" if p else "normal")
+        ax.text(
+            v + xmax * 0.015,
+            yi,
+            fmt.format(v),
+            va="center",
+            fontsize=9,
+            fontweight="bold" if p else "normal",
+        )
     ax.set_xlim(0, xmax)
     ax.xaxis.grid(True, color=GRID, lw=0.6, zorder=0)
     ax.tick_params(axis="y", length=0)
@@ -98,7 +125,13 @@ def hbars(ax, labels, values, picks, fmt, xmax, title_=None):
 
 def heatmap(ax, data, xlabels, ylabels, cmap, vmax, fmt="{:.2f}", best=min):
     """cell values printed; the best of each row in bold"""
-    im = ax.imshow([[v if v is not None else 0 for v in r] for r in data], cmap=cmap, vmin=0, vmax=vmax, aspect="auto")
+    im = ax.imshow(
+        [[v if v is not None else 0 for v in r] for r in data],
+        cmap=cmap,
+        vmin=0,
+        vmax=vmax,
+        aspect="auto",
+    )
     ax.set_xticks(range(len(xlabels)), xlabels, fontsize=8.5)
     ax.set_yticks(range(len(ylabels)), ylabels)
     for i, row in enumerate(data):

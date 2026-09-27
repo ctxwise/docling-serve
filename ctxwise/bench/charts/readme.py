@@ -113,7 +113,14 @@ for ax, ys, lab, fmt in [
     ax.set_xlabel("minConfidence (docling low_score)")
     ax.yaxis.grid(True, color=GRID, lw=0.6, zorder=0)
 a1.axhline(text(M["pages"]), color=GRAY, lw=1, ls="--")
-a1.text(0.665, text(M["pages"]) - 0.006, "page mode on every page", color=INK2, fontsize=8.5, va="top")
+a1.text(
+    0.665,
+    text(M["pages"]) - 0.006,
+    "page mode on every page",
+    color=INK2,
+    fontsize=8.5,
+    va="top",
+)
 title(
     fig,
     "Choosing the low-confidence threshold",
@@ -131,12 +138,25 @@ for i in vis:
     chars[i], table[i] = len(md), bool(re.search(r"^\|.*\|\s*$", md, re.M))
 ks = [i for i in vis if i in hyb]
 th = list(range(0, 10001, 250))
-e2 = [sum(hyb[i] if chars[i] > t and not table[i] else vis[i] for i in ks) / len(ks) for t in th]
+e2 = [
+    sum(hyb[i] if chars[i] > t and not table[i] else vis[i] for i in ks) / len(ks)
+    for t in th
+]
 fig, ax = plt.subplots(figsize=(8, 3.3))
 ax.plot(th, e2, color=ACC, lw=2, zorder=3)
 ax.axvspan(2500, 6000, color=BLUES[0], alpha=0.5, zorder=0, lw=0)
-ax.text(4250, max(e2) * 0.98, "flat region 2,500-6,000", ha="center", fontsize=8.5, color=INK2, va="top")
-ax.scatter([3000], [e2[th.index(3000)]], s=40, color=ACC, edgecolor=SURF, linewidth=2, zorder=4)
+ax.text(
+    4250,
+    max(e2) * 0.98,
+    "flat region 2,500-6,000",
+    ha="center",
+    fontsize=8.5,
+    color=INK2,
+    va="top",
+)
+ax.scatter(
+    [3000], [e2[th.index(3000)]], s=40, color=ACC, edgecolor=SURF, linewidth=2, zorder=4
+)
 ax.annotate(
     f"default 3,000 chars: {e2[th.index(3000)]:.3f}",
     (3000, e2[th.index(3000)]),
@@ -169,7 +189,15 @@ place = {
 }
 for name, k, tok, pick in MODES:
     e = text(M[k])
-    ax.scatter(tok, e, s=90 if pick else 60, color=ACC if pick else GRAY, edgecolor=SURF, linewidth=2, zorder=3)
+    ax.scatter(
+        tok,
+        e,
+        s=90 if pick else 60,
+        color=ACC if pick else GRAY,
+        edgecolor=SURF,
+        linewidth=2,
+        zorder=3,
+    )
     dx, dy, ha = place[k]
     ax.annotate(
         name if k == "pages" else name.replace("\n", " "),
@@ -187,19 +215,30 @@ ax.set_ylim(0, 0.2)
 ax.set_xlabel("input tokens per page")
 ax.set_ylabel("text error (lower is better)")
 ax.grid(True, color=GRID, lw=0.6, zorder=0)
-title(fig, "Cost vs quality", "Bottom-left is best. The default keeps page-mode accuracy at ~58% of its token cost")
+title(
+    fig,
+    "Cost vs quality",
+    "Bottom-left is best. The default keeps page-mode accuracy at ~58% of its token cost",
+)
 fig.savefig(f"{OUT}/cost-vs-quality.png")
 plt.close(fig)
 
 # 6. speed by server size: seconds per page and response size,
 #    every page rendered up front vs only the pages that need it (two panels)
-runs = [(lab, f"{DATA}/speed-{k}.json") for lab, k in [("4 vCPU / 16 GB", "4vcpu"), ("2 vCPU / 8 GB", "2vcpu")]]
+runs = [
+    (lab, f"{DATA}/speed-{k}.json")
+    for lab, k in [("4 vCPU / 16 GB", "4vcpu"), ("2 vCPU / 8 GB", "2vcpu")]
+]
 runs = [(lab, load_json(p)) for lab, p in runs if os.path.exists(p)]
 if runs:
     rows = [
-        (f"{'9-page paper' if f.startswith('docling') else '2-page scan'}\n{lab}", d[f]) for lab, d in runs for f in d
+        (f"{'9-page paper' if f.startswith('docling') else '2-page scan'}\n{lab}", d[f])
+        for lab, d in runs
+        for f in d
     ]
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 1.4 + 0.75 * len(rows)), sharey=True)
+    fig, (a1, a2) = plt.subplots(
+        1, 2, figsize=(11, 1.4 + 0.75 * len(rows)), sharey=True
+    )
     y = list(range(len(rows)))[::-1]
     for ax, key, fmt, lab in [
         (a1, "sec_page", "{:.1f}s", "seconds per page (lower is better)"),
@@ -212,10 +251,31 @@ if runs:
         b = [get(r, "all-pages") for _, r in rows]
         a = [get(r, "on-demand") for _, r in rows]
         top = max(b + a) * 1.3
-        ax.barh([v + 0.19 for v in y], b, height=0.36, color=GRAY, zorder=2, label="every page rendered")
-        ax.barh([v - 0.19 for v in y], a, height=0.36, color=ACC, zorder=2, label="only as needed (current)")
+        ax.barh(
+            [v + 0.19 for v in y],
+            b,
+            height=0.36,
+            color=GRAY,
+            zorder=2,
+            label="every page rendered",
+        )
+        ax.barh(
+            [v - 0.19 for v in y],
+            a,
+            height=0.36,
+            color=ACC,
+            zorder=2,
+            label="only as needed (current)",
+        )
         for yi, bv, av in zip(y, b, a, strict=True):
-            ax.text(bv + top * 0.01, yi + 0.19, fmt.format(bv), va="center", fontsize=8.5, color=INK2)
+            ax.text(
+                bv + top * 0.01,
+                yi + 0.19,
+                fmt.format(bv),
+                va="center",
+                fontsize=8.5,
+                color=INK2,
+            )
             ax.text(
                 av + top * 0.01,
                 yi - 0.19,
@@ -241,10 +301,17 @@ if runs:
 
 # 7. memory: peak container memory per phase, per server size
 mem = []
-for lab, k in [("4 vCPU / 16 GB, 2 workers", "4vcpu"), ("2 vCPU / 8 GB, 1 worker", "2vcpu")]:
+for lab, k in [
+    ("4 vCPU / 16 GB, 2 workers", "4vcpu"),
+    ("2 vCPU / 8 GB, 1 worker", "2vcpu"),
+]:
     sp, pp = f"{DATA}/mem-{k}-samples.csv", f"{DATA}/mem-{k}-phases.json"
     if os.path.exists(sp) and os.path.exists(pp):
-        samples = [tuple(map(float, line.split(","))) for line in Path(sp).read_text().split("\n")[1:] if line]
+        samples = [
+            tuple(map(float, line.split(",")))
+            for line in Path(sp).read_text().split("\n")[1:]
+            if line
+        ]
         ph = load_json(pp)
 
         def peak(s, e, samples=samples):
@@ -257,7 +324,9 @@ for lab, k in [("4 vCPU / 16 GB, 2 workers", "4vcpu"), ("2 vCPU / 8 GB, 1 worker
                     "Idle": peak(ph[0]["start"], ph[0]["end"]),
                     "1 PDF (9 pages)": peak(ph[1]["start"], ph[1]["end"]),
                     "4 documents at once": peak(ph[3]["start"], ph[3]["end"]),
-                    "Legacy .doc + .xls\n(LibreOffice)": peak(ph[5]["start"], ph[5]["end"]),
+                    "Legacy .doc + .xls\n(LibreOffice)": peak(
+                        ph[5]["start"], ph[5]["end"]
+                    ),
                 },
             )
         )
@@ -268,7 +337,9 @@ if mem:
     for n, (lab, d) in enumerate(mem):
         xs = [i + (n - 0.5) * w for i in range(len(cats))]
         vals = [d[c] for c in cats]
-        ax.bar(xs, vals, width=w * 0.92, color=ACC if n == 0 else GRAY, label=lab, zorder=2)
+        ax.bar(
+            xs, vals, width=w * 0.92, color=ACC if n == 0 else GRAY, label=lab, zorder=2
+        )
         for x, v in zip(xs, vals, strict=True):
             ax.text(
                 x,

@@ -54,8 +54,14 @@ for ext, label, pattern in CHECKS:
     for name, parser in PARSERS.items():
         f = DATA / "office" / f"{parser}-rich.{ext}.md"
         text = f.read_text(encoding="utf-8") if f.exists() else ""
-        results[name] = has_picture(text, parser) if pattern == PICTURE else bool(re.search(pattern, text))
+        results[name] = (
+            has_picture(text, parser)
+            if pattern == PICTURE
+            else bool(re.search(pattern, text))
+        )
     rows.append({"label": label, "results": results})
-(DATA / "office-checks.json").write_text(json.dumps({"parsers": list(PARSERS), "rows": rows}, indent=1))
+(DATA / "office-checks.json").write_text(
+    json.dumps({"parsers": list(PARSERS), "rows": rows}, indent=1)
+)
 for name in PARSERS:
     print(f"{name:18s} {sum(r['results'][name] for r in rows)}/{len(rows)}")

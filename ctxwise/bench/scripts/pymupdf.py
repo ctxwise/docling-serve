@@ -34,7 +34,11 @@ def page(img):
         return 0
     t = time.time()
     try:
-        md = to_markdown(pymupdf.open("pdf", pymupdf.open(f"/data/OmniDocBench/images/{img}").convert_to_pdf()))
+        md = to_markdown(
+            pymupdf.open(
+                "pdf", pymupdf.open(f"/data/OmniDocBench/images/{img}").convert_to_pdf()
+            )
+        )
     except Exception as e:
         md = ""
         print("FAIL", img, e, flush=True)
@@ -50,8 +54,13 @@ if args.office:
         )
 else:
     os.makedirs(OUT, exist_ok=True)
-    imgs = [n for n in Path("/data/hard.txt").read_text(encoding="utf-8").splitlines() if n]
+    imgs = [
+        n for n in Path("/data/hard.txt").read_text(encoding="utf-8").splitlines() if n
+    ]
     t0 = time.time()
     with ProcessPoolExecutor(4) as ex:
         times = sorted(ex.map(page, imgs))
-    print(f"{len(imgs)} pages in {time.time() - t0:.0f}s; median {times[len(times) // 2]:.1f}s/page", flush=True)
+    print(
+        f"{len(imgs)} pages in {time.time() - t0:.0f}s; median {times[len(times) // 2]:.1f}s/page",
+        flush=True,
+    )
