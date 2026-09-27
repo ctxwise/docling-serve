@@ -177,7 +177,7 @@ class DoclingServeSettings(BaseSettings):
     table_batch_size: Optional[int] = None
     batch_polling_interval_seconds: Optional[float] = None
 
-    sync_poll_interval: int = 2  # seconds
+    sync_poll_interval: float = 2  # seconds
     max_sync_wait: int = 120  # 2 minutes
 
     cors_origins: list[str] = ["*"]

@@ -109,6 +109,13 @@ from docling_serve.otel_instrumentation import (
     get_metrics_endpoint_content,
     setup_otel_instrumentation,
 )
+from docling_serve.parts.api import (
+    PartsOptions,
+    PartsResult,
+    convert_options_for,
+    to_parts_result,
+)
+from docling_serve.parts.confidence import enable_page_confidence
 from docling_serve.policy import (
     build_batch_request_model,
     build_service_policy,
@@ -236,6 +243,8 @@ async def lifespan(app: FastAPI):
 
 
 def create_app():  # noqa: C901
+    enable_page_confidence()  # ctxwise: per-page scores for the /parts result
+
     try:
         version = importlib.metadata.version("docling_serve")
     except importlib.metadata.PackageNotFoundError:
@@ -939,6 +948,50 @@ def create_app():  # noqa: C901
             background_tasks=background_tasks,
         )
         return response
+
+    # ctxwise: convert one file and return LLM-ready parts - text plus only the images worth sending
+    @app.post(
+        "/v1/convert/file/parts",
+        tags=["convert"],
+        response_model=PartsResult,
+    )
+    async def process_file_parts(
+        auth: Annotated[AuthenticationResult, Depends(require_auth)],
+        orchestrator: Annotated[BaseOrchestrator, Depends(get_async_orchestrator)],
+        files: list[UploadFile],
+        options: Annotated[
+            ConvertDocumentsRequestOptions, FormDepends(ConvertDocumentsRequestOptions)
+        ],
+        parts: Annotated[PartsOptions, Query()],
+        x_tenant_id: Annotated[
+            str | None, Header(alias=docling_serve_settings.eng_ray_tenant_id_header)
+        ] = None,
+    ):
+        if len(files) != 1:
+            raise HTTPException(status_code=400, detail="Send exactly one file.")
+        options = convert_options_for(_prepare_convert_options(options), parts)
+        task = await _enqueue_file(
+            task_type=TaskType.CONVERT,
+            orchestrator=orchestrator,
+            files=files,
+            convert_options=options,
+            chunking_options=None,
+            chunking_export_options=None,
+            target=InBodyTarget(),
+            callbacks=[],
+            tenant_id=_get_tenant_id_from_header(x_tenant_id),
+        )
+        if not await _wait_task_complete(
+            orchestrator=orchestrator, task_id=task.task_id
+        ):
+            raise HTTPException(
+                status_code=504,
+                detail=f"Conversion is taking too long. The maximum wait time is DOCLING_SERVE_MAX_SYNC_WAIT={docling_serve_settings.max_sync_wait}.",
+            )
+        task_result = await orchestrator.task_result(task_id=task.task_id)
+        if task_result is None:
+            raise HTTPException(status_code=404, detail="Task result not found.")
+        return to_parts_result(task_result, parts)
 
     # Convert a document from URL(s) using the async api
     @app.post(
