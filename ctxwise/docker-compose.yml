@@ -1,0 +1,28 @@
+# docling-serve with LLM-ready results, per-page confidence and LibreOffice, bound to localhost.
+# Start (reads DOCLING_API_KEY from ctxwise/.env):  docker compose -f ctxwise/docker-compose.yml up -d
+name: docling-serve
+services:
+  docling:
+    image: ${DOCLING_IMAGE:-ghcr.io/ctxwise/docling-serve:latest}
+    ports:
+      - "127.0.0.1:5001:5001"                         # not reachable from other machines; put a proxy in front if needed
+    environment:
+      DOCLING_SERVE_API_KEY: ${DOCLING_API_KEY:?DOCLING_API_KEY missing - run via dotenvx run -- docker compose up -d}
+      DOCLING_SERVE_ENABLE_UI: "false"
+      DOCLING_SERVE_ENABLE_REMOTE_SERVICES: "false"   # no outbound calls from docling (we don't use its remote VLM)
+      DOCLING_SERVE_MAX_FILE_SIZE: "52428800"         # 50 MB, same as the middleware's maxFileBytes
+      DOCLING_SERVE_MAX_NUM_PAGES: "300"              # hard server cap; the middleware asks for <= maxPages (100)
+      DOCLING_SERVE_MAX_DOCUMENT_TIMEOUT: "1800"      # 30 min per document
+      DOCLING_SERVE_MAX_SYNC_WAIT: "1800"             # /v1/convert/file/parts waits for the whole conversion
+      DOCLING_SERVE_SYNC_POLL_INTERVAL: "0.25"        # notice a finished conversion within 0.25 s
+      DOCLING_SERVE_QUEUE_MAX_SIZE: "100"             # reject instead of queueing forever under load
+      # workers x threads = vCPUs. Defaults fit 4 vCPU / 16 GB; for 2 vCPU / 8 GB set DOCLING_WORKERS=1
+      DOCLING_SERVE_ENG_LOC_NUM_WORKERS: ${DOCLING_WORKERS:-2}  # documents converted in parallel
+      OMP_NUM_THREADS: ${DOCLING_THREADS:-2}                    # CPU threads per conversion
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped

@@ -449,3 +449,9 @@ cookies.txt
 
 # Examples
 /examples/splitted_pdf/*
+# ctxwise benchmark inputs, predictions and scores (ctxwise/bench/README.md shows how to recreate them)
+ctxwise/bench/data/
+ctxwise/.env
+# the ctxwise parts module (the Python template above ignores every parts/ folder)
+!docling_serve/parts/
+!tests/parts/
