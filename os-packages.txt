@@ -6,3 +6,6 @@ leptonica-devel
 libglvnd-glx
 glib2
 libatomic
+libreoffice-writer
+libreoffice-calc
+libreoffice-impress
