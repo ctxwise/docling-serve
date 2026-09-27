@@ -108,6 +108,28 @@ off), and caps on file size, pages, time and queue length.
 
 ## Quality
 
+### opendataloader-bench (200 documents, official scorer)
+
+Docling's text from `/v1/convert/file/parts` with `min_confidence=0` - no vision model involved:
+
+| Engine | Overall | Reading order | Tables | Headings |
+|---|---|---|---|---|
+| opendataloader hybrid (best published) | 0.907 | 0.934 | 0.928 | 0.821 |
+| **this server, docling only** | **0.888** | **0.903** | **0.921** | **0.826** |
+| nutrient | 0.885 | 0.925 | 0.708 | 0.819 |
+| docling (published) | 0.882 | 0.898 | 0.887 | 0.824 |
+| marker | 0.861 | 0.890 | 0.808 | 0.796 |
+
+Tables gain most over plain docling: multi-row headers are merged into one header row. The default PDF backend is
+kept: `pdf_backend=pypdfium2` keeps ligatures that docling-parse drops in some PDFs ("bu er" for "buffer") but scored
+0.876 overall, with tables down to 0.840.
+
+Pending: the hybrid variant (low-confidence pages and charts read by a vision model) on this benchmark, and
+[olmOCR-bench](https://github.com/allenai/olmocr/tree/main/olmocr/bench) and
+[ParseBench](https://github.com/run-llama/ParseBench) runs. See [bench/README.md](bench/README.md).
+
+### OmniDocBench hard pages (earlier evaluation)
+
 88 hard OmniDocBench pages (handwriting, tables, charts, irregular layouts, newspapers), read by `gpt-5-mini`.
 Full comparison with docling alone, PyMuPDF4LLM and MarkItDown: [docs/COMPARISON.md](docs/COMPARISON.md).
 

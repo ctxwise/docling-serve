@@ -23,6 +23,10 @@ Each writes one Markdown file per document with `parts_to_markdown.py`, then run
 - [ParseBench](https://github.com/run-llama/ParseBench) - about 2,000 enterprise pages; tables, charts, content,
   formatting, visual grounding.
 
+Status: opendataloader-bench is scored (docling variant, 0.888 overall; see [../README.md](../README.md#quality)).
+olmOCR-bench and ParseBench runs were interrupted and need a clean rerun; every hybrid run needs OpenRouter
+credit. Conversions and transcriptions are cached, so reruns only pay for what is missing.
+
 ## Earlier OmniDocBench evaluation
 
 The quality charts in [../docs/](../docs/COMPARISON.md) come from 88 hard OmniDocBench pages. What remains of that
