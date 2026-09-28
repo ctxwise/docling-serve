@@ -3,14 +3,15 @@
 Variants:
   docling  docling's text for every page (min_confidence=0): docling on its own (free)
   hybrid   our routing: docling's text where it is confident, low-confidence pages and pictures as images,
-           transcribed by a vision model through OpenRouter - the text a model reading our parts ends up with
+           transcribed by a vision model - the text a model reading our parts ends up with
+  vision   every page as an image, transcribed (mode=pages): the vision-only baseline
 
 Conversions are cached per document and variant in data/parts-cache/, transcriptions in data/vision-cache/,
 so re-runs are free. Input folders are walked recursively; the output mirrors their layout.
 
 usage: python ctxwise/bench/parts_to_markdown.py <input dir> <output dir> [docling|hybrid] [workers=2]
-env:   DOCLING_API_KEY, DOCLING_URL (default http://127.0.0.1:5001), OPENROUTER_API_KEY (hybrid),
-       MAX_TRANSCRIPTIONS (hybrid spending cap: vision calls attempted per run, default 2000),
+env:   DOCLING_API_KEY, DOCLING_URL (default http://127.0.0.1:5001), OPENAI_API_KEY (hybrid, vision),
+       MAX_TRANSCRIPTIONS (spending cap: vision calls attempted per run, default 2000),
        DOCLING_OPTIONS (extra docling options, e.g. "pdf_backend=pypdfium2,table_mode=fast")
 """
 
@@ -26,7 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 DOCLING_URL = os.environ.get("DOCLING_URL", "http://127.0.0.1:5001")
-VISION_MODEL = os.environ.get("VISION_MODEL", "openai/gpt-5-mini")
+VISION_MODEL = os.environ.get("VISION_MODEL", "gpt-5-mini")
 DATA = Path(__file__).parent / "data"
 MAX_TRANSCRIPTIONS = int(os.environ.get("MAX_TRANSCRIPTIONS", "2000"))
 # extra docling-serve form fields, e.g. DOCLING_OPTIONS="pdf_backend=pypdfium2" (part of the cache key)
@@ -53,6 +54,7 @@ OTHER_MARKER = re.compile(r"^\[(?:page \d+[^\]]*|only the first [^\]]*)\]$", re.
 QUERY = {
     "docling": "min_confidence=0&source_readable=false",
     "hybrid": "source_readable=false",
+    "vision": "mode=pages&source_readable=false",
 }
 
 
@@ -110,7 +112,7 @@ def transcribe(media_type: str, data: str) -> str:
         transcriptions += 1
     body = {
         "model": VISION_MODEL,
-        "reasoning": {"effort": "low"},
+        "reasoning_effort": "low",
         "messages": [
             {
                 "role": "user",
@@ -125,10 +127,10 @@ def transcribe(media_type: str, data: str) -> str:
         ],
     }
     result = post_json(
-        "https://openrouter.ai/api/v1/chat/completions",
+        "https://api.openai.com/v1/chat/completions",
         json.dumps(body).encode(),
         {
-            "Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}",
+            "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
             "Content-Type": "application/json",
         },
         timeout=300,
@@ -149,7 +151,7 @@ def to_markdown(parts: list[dict], variant: str) -> str:
         if part["type"] == "text":
             text = PICTURE_MARKER.sub(lambda m: m["caption"] or "", part["text"])
             blocks.append(OTHER_MARKER.sub("", text).strip())
-        elif part["type"] == "image" and variant == "hybrid":
+        elif part["type"] == "image" and variant != "docling":
             blocks.append(transcribe(part["media_type"], part["data"]))
     return "\n\n".join(b for b in blocks if b) + "\n"
 
