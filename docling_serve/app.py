@@ -991,7 +991,12 @@ def create_app():  # noqa: C901
         task_result = await orchestrator.task_result(task_id=task.task_id)
         if task_result is None:
             raise HTTPException(status_code=404, detail="Task result not found.")
-        return to_parts_result(task_result, parts)
+        try:
+            return to_parts_result(task_result, parts)
+        finally:
+            # the result stays in the orchestrator's memory until released, as in the other endpoints
+            if docling_serve_settings.single_use_results:
+                await orchestrator.on_result_fetched(task.task_id)
 
     # Convert a document from URL(s) using the async api
     @app.post(
