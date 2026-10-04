@@ -54,7 +54,7 @@ def _page_of(item: dict | None) -> int | None:
     return prov[0].get("page_no") if prov else None
 
 
-def to_blocks(  # noqa: C901 - one walk over the document, kept together on purpose
+def to_blocks(  # noqa: C901 (one walk over the document, kept together on purpose)
     doc: Doc,
     *,
     page: int | None = None,

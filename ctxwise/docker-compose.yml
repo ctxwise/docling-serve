@@ -7,7 +7,7 @@ services:
     ports:
       - "127.0.0.1:5001:5001"                         # not reachable from other machines; put a proxy in front if needed
     environment:
-      DOCLING_SERVE_API_KEY: ${DOCLING_API_KEY:?DOCLING_API_KEY missing - run via dotenvx run -- docker compose up -d}
+      DOCLING_SERVE_API_KEY: ${DOCLING_API_KEY:?DOCLING_API_KEY missing: run via dotenvx run -- docker compose up -d}
       DOCLING_SERVE_ENABLE_UI: "false"
       DOCLING_SERVE_ENABLE_REMOTE_SERVICES: "false"   # no outbound calls from docling (we don't use its remote VLM)
       DOCLING_SERVE_MAX_FILE_SIZE: "52428800"         # 50 MB, same as the middleware's maxFileBytes

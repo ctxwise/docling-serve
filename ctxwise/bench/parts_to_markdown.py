@@ -3,7 +3,7 @@
 Variants:
   docling  docling's text for every page (min_confidence=0): docling on its own (free)
   hybrid   our routing: docling's text where it is confident, low-confidence pages and pictures as images,
-           transcribed by a vision model - the text a model reading our parts ends up with
+           transcribed by a vision model: the text a model reading our parts ends up with
   vision   every page as an image, transcribed (mode=pages): the vision-only baseline
 
 Conversions are cached per document and variant in data/parts-cache/, transcriptions in data/vision-cache/,

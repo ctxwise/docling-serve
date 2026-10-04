@@ -92,7 +92,7 @@ class PartsResult(BaseModel):
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".tif", ".tiff", ".bmp"}
 
 # Longest side of page renders. Anthropic resizes above 1568 px; OpenAI scales to 2048 px, then to 768 px on the
-# short side - so a smaller render costs the model nothing and makes the request several times smaller.
+# short side, so a smaller render costs the model nothing and makes the request several times smaller.
 PAGE_RENDER_MAX_SIDE = 1568
 
 

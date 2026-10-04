@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Scores data/pred/<method> against the hard-page ground truth with OmniDocBench's evaluator
-# (text edit distance, reading order, table TEDS; CDM skipped - it needs TeX Live).
+# (text edit distance, reading order, table TEDS; CDM skipped: it needs TeX Live).
 # Results: bench/data/results/<method>_quick_match_*.json
 # usage (repo root): bash bench/scripts/score.sh <method>...
 set -euo pipefail

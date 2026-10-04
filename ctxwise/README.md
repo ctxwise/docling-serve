@@ -1,7 +1,7 @@
 # docling-serve for LLMs (ctxwise fork)
 
 [docling-serve](https://github.com/docling-project/docling-serve) with one addition: an endpoint that returns a
-converted document as **LLM-ready parts** - compact text plus only the images worth sending to a vision model.
+converted document as **LLM-ready parts**: compact text plus only the images worth sending to a vision model.
 It is the server behind [`@ctxwise/ai-sdk-docling`](https://github.com/ctxwise/ai-sdk-docling). The server itself
 never calls an LLM.
 
@@ -83,7 +83,7 @@ CPU only; no GPU needed. Size workers x threads to the machine's vCPUs with `DOC
 
 **Scaling out.** Each request carries the whole conversion, so any container can serve any request: put several
 behind a plain load balancer (no sticky sessions, no shared storage) and autoscale on CPU (about 70%). Keep at least
-two warm containers - a new one needs one to two minutes to pull the image and load the models.
+two warm containers, because a new one needs one to two minutes to pull the image and load the models.
 
 **Timeouts.** A request stays open while its document converts: seconds for most files, up to about 12 minutes for
 100 pages. Keep the server internal (app to docling in the same network) and set every hop to about 20 minutes:
@@ -110,7 +110,7 @@ off), and caps on file size, pages, time and queue length.
 
 ### opendataloader-bench (200 documents, official scorer)
 
-Docling's text from `/v1/convert/file/parts` with `min_confidence=0` - no vision model involved:
+Docling's text from `/v1/convert/file/parts` with `min_confidence=0`, no vision model involved:
 
 | Engine | Overall | Reading order | Tables | Headings |
 |---|---|---|---|---|
@@ -137,7 +137,7 @@ Full comparison with docling alone, PyMuPDF4LLM and MarkItDown: [docs/COMPARISON
 
 ![Text error by page type](docs/images/by-page-type.png)
 
-Neither source wins everywhere - docling is best on clean and dense print, vision on handwriting and layouts.
+Neither source wins everywhere: docling is best on clean and dense print, vision on handwriting and layouts.
 Routing by confidence takes the better one per page.
 
 ![Cost vs quality](docs/images/cost-vs-quality.png)
@@ -148,7 +148,7 @@ Routing by confidence takes the better one per page.
 ![Confidence threshold](docs/images/confidence-threshold.png)
 
 Docling's `low_score` ranged 0.67-0.96 on these pages; all pages where docling failed scored 0.85 or lower.
-At 0.8, 40% of hard pages go to the model as images - clean documents score higher and stay text.
+At 0.8, 40% of hard pages go to the model as images; clean documents score higher and stay text.
 
 ![Hint threshold](docs/images/hint-threshold.png)
 

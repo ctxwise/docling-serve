@@ -14,13 +14,13 @@ server up (see [../README.md](../README.md)); scripts read `DOCLING_API_KEY`, an
 
 Each writes one Markdown file per document with `parts_to_markdown.py`, then runs the benchmark's own scorer.
 
-- [opendataloader-bench](https://github.com/opendataloader-project/opendataloader-bench) - 200 documents; reading
+- [opendataloader-bench](https://github.com/opendataloader-project/opendataloader-bench): 200 documents; reading
   order, tables, headings. Clone into `data/`, write to `data/opendataloader-bench/prediction/<name>/markdown/`,
   then `uv run src/evaluator.py` in that folder.
-- [olmOCR-bench](https://github.com/allenai/olmocr/tree/main/olmocr/bench) - 1,403 pages of unit tests: text,
+- [olmOCR-bench](https://github.com/allenai/olmocr/tree/main/olmocr/bench): 1,403 pages of unit tests: text,
   headers and footers, reading order, tables, math. Download with
   `uvx --from "huggingface_hub[hf_xet]" hf download --repo-type dataset allenai/olmOCR-bench --local-dir ctxwise/bench/data/olmOCR-bench`.
-- [ParseBench](https://github.com/run-llama/ParseBench) - about 2,000 enterprise pages; tables, charts, content,
+- [ParseBench](https://github.com/run-llama/ParseBench): about 2,000 enterprise pages; tables, charts, content,
   formatting, visual grounding.
 
 Status: opendataloader-bench is scored (docling variant, 0.888 overall; see [../README.md](../README.md#quality)).

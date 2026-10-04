@@ -11,7 +11,7 @@ How this project compares with docling alone, [PyMuPDF4LLM](https://github.com/p
 | Hard pages: reading-order error (lower) | **0.242** | 0.349 | 0.339 | 0.280 |
 | Hard pages: table accuracy, TEDS (higher) | **79.1** | 68.6 | 35.0 | 0.0 |
 | Hard pages sent to an LLM | 40% | 0% | 0% | 100% |
-| Word / PowerPoint / Excel checks (21) | **21** | - | 9 | 17 |
+| Word / PowerPoint / Excel checks (21) | **21** | n/a | 9 | 17 |
 | Digital 9-page PDF, 4 vCPU | 64 s | 64 s | 28 s | 185 s (26 LLM calls) |
 | Confidence score, picture types | yes | yes | no | no |
 | Legacy DOC / XLS / PPT | yes | yes | no | no |
@@ -35,8 +35,8 @@ How this project compares with docling alone, [PyMuPDF4LLM](https://github.com/p
 
 ## Hard pages (OmniDocBench)
 
-88 hard pages from [OmniDocBench](https://github.com/opendatalab/OmniDocBench) v1.6 - handwriting, exam papers,
-textbooks, newspapers, irregular layouts, tables and charts, in English and Chinese - scored with its official
+88 hard pages from [OmniDocBench](https://github.com/opendatalab/OmniDocBench) v1.6 (handwriting, exam papers,
+textbooks, newspapers, irregular layouts, tables and charts, in English and Chinese), scored with its official
 evaluator. Every method read the same page images.
 
 ![Quality](images/compare-quality.png)
@@ -46,7 +46,7 @@ evaluator. Every method read the same page images.
 - **Handwriting:** routing the page to vision gives 0.03 against 0.25 for docling's OCR.
 - **Newspapers (dense small print):** vision alone fails (0.52); docling reads them well (0.06), and the dense-page
   hint keeps this project close (0.09).
-- **Academic papers - a weakness of this project:** docling alone scores 0.04, this project 0.15. Some of these
+- **Academic papers, a weakness of this project:** docling alone scores 0.04, this project 0.15. Some of these
   pages score just under 0.8, go to vision, and `gpt-5-mini` reads them worse than docling did.
 
 ![Reading order by page type](images/compare-heatmap-reading.png)
