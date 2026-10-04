@@ -8,6 +8,10 @@
 
 Running [Docling](https://github.com/docling-project/docling) as an API service.
 
+> **ctxwise fork.** Upstream docling-serve plus one endpoint, `POST /v1/convert/file/parts`, that returns a
+> converted document as LLM-ready parts. What the fork adds, how to run it and its benchmarks:
+> [ctxwise/README.md](./ctxwise/README.md). Everything below is the upstream documentation, unchanged.
+
 📚 [Docling Serve documentation](./docs/README.md)
 
 - Learning how to [configure the webserver](./docs/configuration.md)
